@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="GNUSim8085 Virtual Microprocessor Lab - Learn 8085 assembly with a real browser-based simulator, 14 practicals, quiz and resources." />
+<title>GNUSim8085 Virtual Microprocessor Lab</title>
+<style>
+/* ============ THEME TOKENS ============ */
+:root{
+  --bg-grad-1:#05071a;--bg-grad-2:#0a1030;--bg-grad-3:#10062e;
+  --glass-bg:rgba(255,255,255,.05);--glass-bg-strong:rgba(255,255,255,.09);
+  --glass-border:rgba(255,255,255,.14);--glass-shadow:0 8px 32px rgba(0,0,0,.45);
+  --glass-blur:18px;
+  --text-1:#eaf3ff;--text-2:#b6c4e6;--text-3:#7f8db3;
+  --neon-cyan:#00e5ff;--neon-purple:#7c4dff;--neon-pink:#ff4ecd;
+  --ok:#22e3a1;--err:#ff5c7a;--warn:#ffcf4d;
+  --grad-main:linear-gradient(135deg,#00e5ff 0%,#7c4dff 100%);
+  --grad-soft:linear-gradient(135deg,rgba(0,229,255,.18),rgba(124,77,255,.18));
+  --grad-text:linear-gradient(90deg,#00e5ff 0%,#7c4dff 50%,#ff4ecd 100%);
+  --radius-sm:10px;--radius:16px;--radius-lg:22px;--radius-pill:999px;
+  --shadow-neon:0 0 24px rgba(0,229,255,.35);
+  --shadow-neon-2:0 0 36px rgba(124,77,255,.45);
+  --font-sans:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-mono:"Consolas","SF Mono","Menlo","Courier New",monospace;
+  --nav-h:68px;--maxw:1240px;--ease:cubic-bezier(.22,.61,.36,1);
+}
+html[data-theme="light"]{
+  --bg-grad-1:#eef3ff;--bg-grad-2:#e2ecff;--bg-grad-3:#ece4ff;
+  --glass-bg:rgba(255,255,255,.55);--glass-bg-strong:rgba(255,255,255,.75);
+  --glass-border:rgba(20,30,70,.12);--glass-shadow:0 10px 30px rgba(30,50,110,.14);
+  --text-1:#0e1633;--text-2:#2c3a63;--text-3:#5a678d;
+  --neon-cyan:#0090b8;--neon-purple:#6b34e0;--neon-pink:#d62bb0;
+  --shadow-neon:0 0 22px rgba(0,144,184,.28);
+  --shadow-neon-2:0 0 28px rgba(107,52,224,.30);
+}
+/* ============ RESET ============ */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--font-sans);color:var(--text-1);background:var(--bg-grad-1);line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background-color .45s var(--ease),color .45s var(--ease)}
+body::before{content:"";position:fixed;inset:-20%;z-index:-2;
+  background:radial-gradient(45% 45% at 12% 18%,rgba(0,229,255,.22),transparent 60%),
+  radial-gradient(40% 40% at 88% 12%,rgba(124,77,255,.25),transparent 60%),
+  radial-gradient(50% 50% at 78% 88%,rgba(255,78,205,.16),transparent 62%),
+  radial-gradient(45% 45% at 20% 90%,rgba(59,130,246,.18),transparent 60%),
+  linear-gradient(135deg,var(--bg-grad-1),var(--bg-grad-2) 55%,var(--bg-grad-3));
+  animation:aurora 24s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:46px 46px;
+  mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 78%);
+  -webkit-mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 78%)}
+html[data-theme="light"] body::after{background-image:linear-gradient(rgba(20,40,90,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(20,40,90,.06) 1px,transparent 1px)}
+@keyframes aurora{0%{transform:translate3d(-2%,-1%,0) scale(1.02)}50%{transform:translate3d(2%,1.5%,0) scale(1.06)}100%{transform:translate3d(-1%,2%,0) scale(1.03)}}
+img,svg{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+ul,ol{margin:0;padding-left:1.1rem}
+code{font-family:var(--font-mono)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--neon-cyan),var(--neon-purple));border-radius:999px;border:3px solid transparent;background-clip:content-box}
+/* ============ TYPO ============ */
+h1,h2,h3,h4{line-height:1.2;margin:0 0 .5rem;font-weight:800;letter-spacing:-.5px}
+p{margin:0 0 1rem}
+.grad{background:var(--grad-text);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:gradMove 6s ease infinite}
+@keyframes gradMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.section{padding:5.5rem 1.25rem;position:relative}
+.section-head{max-width:780px;margin:0 auto 3rem;text-align:center}
+.section-eyebrow{display:inline-block;font-size:.8rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--neon-cyan);background:var(--grad-soft);border:1px solid var(--glass-border);padding:.35rem .9rem;border-radius:var(--radius-pill);margin-bottom:1rem;backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur))}
+.section-title{font-size:clamp(1.7rem,3.6vw,2.8rem)}
+.section-desc{color:var(--text-2);font-size:1.03rem}
+/* ============ GLASS ============ */
+.feature-card,.about-card,.practical-card,.sim-panel,.quiz-card,.quiz-result,.resource-card,.practical-controls,.footer,.nav-menu,.sim-note,.stat,.reg,.special,.flag,.disasm,.mem-viewer,.asm-editor,.search-input,.chip,.quiz-opt,.sim-status,.sim-output{
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  backdrop-filter:blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(140%);
+  box-shadow:var(--glass-shadow);
+  transition:background-color .35s var(--ease),border-color .35s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease)}
+/* ============ NAV ============ */
+.navbar{position:sticky;top:0;z-index:1000;backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);background:var(--glass-bg);border-bottom:1px solid var(--glass-border);transition:background .35s var(--ease),box-shadow .35s var(--ease)}
+.navbar.scrolled{box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.nav-container{max-width:var(--maxw);margin:0 auto;height:var(--nav-h);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.nav-logo{display:flex;align-items:center;gap:.7rem;font-weight:800}
+.logo-chip{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--grad-main);color:#fff;font-family:var(--font-mono);font-size:.78rem;letter-spacing:.5px;box-shadow:var(--shadow-neon);animation:chipPulse 3.2s ease-in-out infinite}
+@keyframes chipPulse{0%,100%{box-shadow:0 0 18px rgba(0,229,255,.35)}50%{box-shadow:0 0 32px rgba(124,77,255,.6)}}
+.logo-text{font-size:.98rem;letter-spacing:.2px}
+.nav-menu{display:flex;align-items:center;gap:.25rem;padding:.35rem;border-radius:var(--radius-pill)}
+.nav-link{position:relative;padding:.55rem .95rem;border-radius:var(--radius-pill);color:var(--text-2);font-weight:600;font-size:.92rem;transition:color .25s var(--ease),background .25s var(--ease)}
+.nav-link:hover{color:var(--text-1);background:var(--glass-bg-strong)}
+.nav-link.active{color:#fff;background:var(--grad-main);box-shadow:var(--shadow-neon)}
+.nav-toggle{display:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass-bg);position:relative}
+.nav-toggle span{position:absolute;left:50%;top:50%;width:20px;height:2px;background:var(--text-1);border-radius:2px;transform:translate(-50%,-50%);transition:transform .3s var(--ease),opacity .3s var(--ease)}
+.nav-toggle span:nth-child(1){transform:translate(-50%,-8px)}
+.nav-toggle span:nth-child(3){transform:translate(-50%,6px)}
+.nav-toggle.open span:nth-child(1){transform:translate(-50%,-50%) rotate(45deg)}
+.nav-toggle.open span:nth-child(2){opacity:0}
+.nav-toggle.open span:nth-child(3){transform:translate(-50%,-50%) rotate(-45deg)}
+.theme-toggle{position:relative;width:46px;height:46px;border-radius:50%;border:1px solid var(--glass-border);background:var(--glass-bg);display:grid;place-items:center;overflow:hidden;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.theme-toggle:hover{transform:rotate(15deg) scale(1.06);box-shadow:var(--shadow-neon)}
+.theme-icon{position:absolute;font-size:1.05rem;transition:transform .5s var(--ease),opacity .4s var(--ease)}
+.theme-icon.moon{opacity:0;transform:translateY(-120%) rotate(-90deg)}
+html[data-theme="light"] .theme-icon.sun{opacity:0;transform:translateY(120%) rotate(90deg)}
+html[data-theme="light"] .theme-icon.moon{opacity:1;transform:translateY(0) rotate(0)}
+/* ============ BUTTONS ============ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.78rem 1.4rem;border-radius:var(--radius-pill);font-weight:700;font-size:.94rem;border:1px solid transparent;transition:transform .25s var(--ease),box-shadow .3s var(--ease),background .3s var(--ease),color .3s var(--ease)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--grad-main);color:#fff;box-shadow:var(--shadow-neon)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:var(--shadow-neon-2)}
+.btn-accent{background:var(--grad-soft);color:var(--text-1);border-color:var(--glass-border)}
+.btn-accent:hover{transform:translateY(-3px);box-shadow:var(--shadow-neon)}
+.btn-ghost{background:var(--glass-bg);color:var(--text-1);border-color:var(--glass-border)}
+.btn-ghost:hover{background:var(--glass-bg-strong);transform:translateY(-3px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none !important}
+/* ============ HERO ============ */
+.hero{position:relative;padding:calc(var(--nav-h) + 3rem) 1.25rem 4rem;max-width:var(--maxw);margin:0 auto}
+.hero-content{display:grid;grid-template-columns:1.15fr .85fr;gap:2.5rem;align-items:center}
+.hero-eyebrow{display:inline-block;font-size:.8rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--neon-cyan);background:var(--grad-soft);border:1px solid var(--glass-border);padding:.35rem .9rem;border-radius:var(--radius-pill);margin-bottom:1rem}
+.hero-title{font-size:clamp(2rem,5.2vw,3.4rem);margin-bottom:1rem}
+.hero-subtitle{color:var(--text-2);font-size:1.07rem;max-width:560px}
+.hero-buttons{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.4rem}
+.hero-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-top:2.4rem}
+.stat{border-radius:var(--radius);padding:1rem .8rem;text-align:center}
+.stat:hover{transform:translateY(-6px);box-shadow:var(--shadow-neon)}
+.stat-num{display:block;font-size:1.7rem;font-weight:800;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.stat-label{font-size:.8rem;color:var(--text-3)}
+.hero-visual{display:grid;place-items:center;position:relative}
+.chip-scene{position:relative;width:min(420px,90%);aspect-ratio:1/1;display:grid;place-items:center}
+.chip-svg{width:100%;height:auto;filter:drop-shadow(0 0 22px rgba(0,229,255,.35));animation:chipFloat 6s ease-in-out infinite}
+@keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.chip-orbit{position:absolute;inset:6%;border-radius:50%;border:1px dashed rgba(0,229,255,.35);animation:spin 22s linear infinite;pointer-events:none}
+.chip-orbit.orbit-2{inset:-4%;border-style:dotted;border-color:rgba(124,77,255,.45);animation-duration:34s;animation-direction:reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.features{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.2rem;margin-top:4rem}
+.feature-card{border-radius:var(--radius-lg);padding:1.6rem 1.3rem;position:relative;overflow:hidden}
+.feature-card::before{content:"";position:absolute;inset:0;background:var(--grad-soft);opacity:0;transition:opacity .4s var(--ease);pointer-events:none}
+.feature-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-neon-2)}
+.feature-card:hover::before{opacity:.55}
+.feature-icon{font-size:1.6rem;width:54px;height:54px;border-radius:14px;display:grid;place-items:center;background:var(--grad-main);box-shadow:var(--shadow-neon);margin-bottom:1rem;position:relative;z-index:1}
+.feature-card h3{font-size:1.05rem;position:relative;z-index:1}
+.feature-card p{color:var(--text-2);font-size:.92rem;margin:0;position:relative;z-index:1}
+/* ============ ABOUT ============ */
+.about-grid{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.4rem}
+.about-card{border-radius:var(--radius-lg);padding:1.6rem 1.4rem}
+.about-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-neon)}
+.about-card h3{font-size:1.08rem;margin-bottom:.7rem}
+.about-card p,.about-list{color:var(--text-2);font-size:.94rem}
+.about-list li{margin-bottom:.45rem}
+/* ============ PRACTICALS ============ */
+.practical-controls{max-width:var(--maxw);margin:0 auto 1.6rem;border-radius:var(--radius-lg);padding:1.1rem;display:flex;flex-wrap:wrap;gap:.9rem;align-items:center}
+.search-input{flex:1 1 260px;min-width:200px;padding:.8rem 1.1rem;border-radius:var(--radius-pill);color:var(--text-1);font-size:.94rem;outline:none}
+.search-input::placeholder{color:var(--text-3)}
+.search-input:focus{border-color:var(--neon-cyan);box-shadow:var(--shadow-neon)}
+.filter-chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{padding:.5rem 1rem;border-radius:var(--radius-pill);color:var(--text-2);font-weight:600;font-size:.85rem}
+.chip:hover{color:var(--text-1);transform:translateY(-2px)}
+.chip.active{background:var(--grad-main);color:#fff;box-shadow:var(--shadow-neon);border-color:transparent}
+.practicals-grid{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:1.4rem}
+.practical-card{border-radius:var(--radius-lg);padding:1.4rem;display:flex;flex-direction:column;gap:.8rem;position:relative;overflow:hidden}
+.practical-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-neon-2)}
+.practical-top{display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+.practical-num{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--grad-main);color:#fff;font-weight:800;font-family:var(--font-mono);box-shadow:var(--shadow-neon);flex:0 0 auto}
+.practical-cat{font-size:.72rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--neon-cyan);background:var(--grad-soft);border:1px solid var(--glass-border);padding:.28rem .7rem;border-radius:var(--radius-pill)}
+.practical-title{font-size:1.08rem;margin:0}
+.practical-aim{color:var(--text-2);font-size:.9rem;margin:0}
+.practical-actions{display:flex;gap:.5rem;margin-top:auto;flex-wrap:wrap}
+.practical-actions .btn{padding:.6rem 1rem;font-size:.85rem}
+.practical-body{max-height:0;overflow:hidden;transition:max-height .5s var(--ease);border-top:1px solid transparent}
+.practical-card.open .practical-body{max-height:5000px;border-top-color:var(--glass-border);margin-top:.4rem;padding-top:1rem}
+.practical-body h4{font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--neon-cyan);margin:1rem 0 .4rem}
+.practical-body p,.practical-body li{color:var(--text-2);font-size:.9rem}
+.code-block{position:relative;background:rgba(0,10,30,.55);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.84rem;line-height:1.55;color:#d7f5ff;white-space:pre}
+html[data-theme="light"] .code-block{background:rgba(15,30,70,.08);color:#0e1633}
+.kv-table{width:100%;border-collapse:collapse;font-size:.86rem}
+.kv-table th,.kv-table td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--glass-border);color:var(--text-2)}
+.kv-table th{color:var(--text-1);font-weight:700}
+.viva-mini{color:var(--text-2);font-size:.88rem}
+.viva-mini dt{color:var(--text-1);font-weight:700;margin-top:.5rem}
+.viva-mini dd{margin:0 0 .3rem}
+.no-results{text-align:center;color:var(--text-3);padding:2rem}
+/* ============ SIMULATOR ============ */
+.sim-layout{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:1.15fr .85fr;gap:1.4rem}
+.sim-panel{border-radius:var(--radius-lg);padding:1.2rem;display:flex;flex-direction:column;gap:.9rem;min-width:0}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+.panel-head h3{font-size:1rem;margin:0}
+.panel-head small{color:var(--text-3);font-weight:500;font-size:.75rem}
+.panel-head-sub{margin-top:.4rem}
+.panel-tag{font-size:.74rem;letter-spacing:1.2px;text-transform:uppercase;padding:.28rem .75rem;border-radius:var(--radius-pill);background:var(--grad-soft);border:1px solid var(--glass-border);color:var(--neon-cyan)}
+.panel-tag.running{color:#fff;background:var(--grad-main)}
+.panel-tag.error{color:#fff;background:linear-gradient(135deg,#ff5c7a,#b21e4c)}
+.panel-tag.done{color:#062;background:linear-gradient(135deg,#22e3a1,#0fa46c)}
+.asm-editor{width:100%;min-height:300px;resize:vertical;padding:1rem 1.1rem;border-radius:var(--radius-sm);color:#d7f5ff;font-family:var(--font-mono);font-size:.88rem;line-height:1.55;outline:none;tab-size:4}
+html[data-theme="light"] .asm-editor{background:rgba(255,255,255,.6);color:#0e1633}
+.asm-editor:focus{border-color:var(--neon-cyan);box-shadow:var(--shadow-neon)}
+.sim-controls{display:flex;flex-wrap:wrap;gap:.55rem}
+.sim-controls .btn{padding:.6rem 1.05rem;font-size:.86rem}
+.sim-status{font-family:var(--font-mono);font-size:.84rem;color:var(--text-2);border-left:3px solid var(--neon-cyan);border-radius:var(--radius-sm);padding:.7rem .9rem;min-height:46px}
+.sim-status.error{border-left-color:var(--err);color:var(--err)}
+.sim-status.ok{border-left-color:var(--ok);color:var(--ok)}
+.sim-output{font-size:.92rem;color:var(--text-1);background:var(--grad-soft);border-radius:var(--radius-sm);padding:.7rem .9rem}
+.reg-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem}
+.reg{border-radius:var(--radius-sm);padding:.55rem .6rem;display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono)}
+.reg.changed{animation:regFlash .6s ease}
+@keyframes regFlash{0%{box-shadow:0 0 0 rgba(0,229,255,0)}40%{box-shadow:0 0 18px rgba(0,229,255,.85);transform:scale(1.04)}100%{box-shadow:0 0 0 rgba(0,229,255,0);transform:scale(1)}}
+.reg-name{color:var(--neon-cyan);font-weight:700}
+.reg-val{font-weight:700;letter-spacing:1px}
+.special-regs{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.special{border-radius:var(--radius-sm);padding:.55rem .7rem;display:flex;justify-content:space-between;font-family:var(--font-mono)}
+.special span:first-child{color:var(--neon-purple);font-weight:700}
+.flags-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.45rem}
+.flag{text-align:center;border-radius:var(--radius-sm);padding:.5rem .3rem;font-family:var(--font-mono)}
+.flag-name{display:block;font-size:.74rem;color:var(--text-3);font-weight:700}
+.flag-val{display:block;font-size:1.05rem;font-weight:800}
+.flag.on{background:var(--grad-main);color:#fff;border-color:transparent;box-shadow:var(--shadow-neon)}
+.flag.on .flag-name{color:rgba(255,255,255,.9)}
+.mem-viewer{max-height:220px;overflow:auto;font-family:var(--font-mono);font-size:.82rem;background:rgba(0,10,30,.5);border-radius:var(--radius-sm);padding:.55rem;line-height:1.7}
+html[data-theme="light"] .mem-viewer{background:rgba(255,255,255,.65)}
+.mem-row{display:grid;grid-template-columns:auto repeat(8,1fr);gap:.25rem}
+.mem-addr{color:var(--neon-purple);font-weight:700}
+.mem-cell{padding:.1rem .3rem;border-radius:5px;text-align:center;color:var(--text-2)}
+.mem-cell.nz{color:var(--text-1);background:var(--glass-bg-strong)}
+.mem-cell.pc{background:var(--grad-main);color:#fff;box-shadow:var(--shadow-neon);font-weight:700}
+.disasm{max-height:200px;overflow:auto;font-family:var(--font-mono);font-size:.84rem;background:rgba(0,10,30,.5);border-radius:var(--radius-sm);padding:.5rem}
+html[data-theme="light"] .disasm{background:rgba(255,255,255,.65)}
+.disasm-row{display:grid;grid-template-columns:70px 1fr;gap:.5rem;padding:.18rem .35rem;border-radius:5px;color:var(--text-2)}
+.disasm-row.current{background:var(--grad-main);color:#fff;box-shadow:var(--shadow-neon);font-weight:700}
+.disasm-addr{color:var(--neon-purple)}
+.disasm-row.current .disasm-addr{color:#fff}
+.sim-note{max-width:var(--maxw);margin:1.4rem auto 0;padding:1rem 1.2rem;border-radius:var(--radius);color:var(--text-2);font-size:.88rem}
+/* ============ QUIZ ============ */
+.quiz-wrap{max-width:780px;margin:0 auto}
+.quiz-progress{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}
+.quiz-progress-bar{flex:1;height:8px;border-radius:999px;background:var(--glass-bg);border:1px solid var(--glass-border);overflow:hidden}
+.quiz-progress-bar>div{height:100%;width:0%;background:var(--grad-main);border-radius:999px;transition:width .45s var(--ease)}
+.quiz-progress span{font-size:.82rem;color:var(--text-3);font-family:var(--font-mono)}
+.quiz-card,.quiz-result{border-radius:var(--radius-lg);padding:1.6rem}
+.quiz-q{font-size:1.12rem;margin-bottom:1rem}
+.quiz-options{display:grid;gap:.6rem}
+.quiz-opt{display:flex;align-items:center;gap:.75rem;text-align:left;padding:.85rem 1rem;border-radius:var(--radius);color:var(--text-1);font-size:.95rem}
+.quiz-opt:hover:not(.locked){transform:translateX(6px);border-color:var(--neon-cyan);box-shadow:var(--shadow-neon)}
+.quiz-opt .opt-key{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--grad-soft);border:1px solid var(--glass-border);font-weight:800;font-family:var(--font-mono);flex:0 0 auto}
+.quiz-opt.correct{background:linear-gradient(135deg,rgba(34,227,161,.22),rgba(15,164,108,.22));border-color:var(--ok)}
+.quiz-opt.wrong{background:linear-gradient(135deg,rgba(255,92,122,.22),rgba(178,30,76,.22));border-color:var(--err)}
+.quiz-opt.locked{cursor:default}
+.quiz-feedback{margin-top:1rem;padding:.9rem 1rem;border-radius:var(--radius);border-left:3px solid var(--neon-cyan);font-size:.9rem;color:var(--text-2)}
+.quiz-feedback.ok{border-left-color:var(--ok)}
+.quiz-feedback.err{border-left-color:var(--err)}
+.quiz-actions{display:flex;justify-content:flex-end;margin-top:1.2rem}
+.quiz-result{text-align:center}
+.quiz-score{font-size:1.15rem;color:var(--text-1)}
+.quiz-percent{font-size:2.4rem;font-weight:800;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;margin:.4rem 0 1.2rem}
+/* ============ RESOURCES ============ */
+.resources-grid{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.4rem}
+.resource-card{border-radius:var(--radius-lg);padding:1.5rem 1.4rem}
+.resource-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-neon)}
+.resource-card h3{font-size:1.05rem;margin-bottom:.8rem}
+.resource-card ul,.resource-card ol{color:var(--text-2);font-size:.92rem}
+.resource-card li{margin-bottom:.45rem}
+.resource-card-wide{grid-column:1/-1}
+.viva-list{padding-left:1.2rem}
+.viva-list li{margin-bottom:.7rem}
+.viva-list strong{color:var(--text-1)}
+.resource-card code{background:var(--glass-bg-strong);border:1px solid var(--glass-border);padding:.1rem .45rem;border-radius:6px;font-size:.85rem}
+/* ============ FOOTER ============ */
+.footer{margin-top:2rem;padding:3rem 1.25rem 1.5rem;border-top:1px solid var(--glass-border)}
+.footer-grid{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:2rem}
+.footer h4{font-size:.98rem;margin-bottom:.7rem}
+.footer p,.footer a{color:var(--text-2);font-size:.9rem;display:block;margin-bottom:.35rem}
+.footer a:hover{color:var(--neon-cyan)}
+.footer-bottom{max-width:var(--maxw);margin:2rem auto 0;padding-top:1rem;border-top:1px solid var(--glass-border);text-align:center;color:var(--text-3);font-size:.84rem}
+/* ============ REVEAL ============ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+/* ============ RESPONSIVE ============ */
+@media (max-width:1024px){
+  .hero-content{grid-template-columns:1fr}
+  .hero-visual{order:-1;max-width:380px;margin:0 auto}
+  .features{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .about-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sim-layout{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:860px){
+  .nav-toggle{display:block}
+  .nav-menu{position:absolute;top:calc(var(--nav-h) + 10px);left:1rem;right:1rem;flex-direction:column;align-items:stretch;padding:.8rem;border-radius:var(--radius-lg);background:var(--glass-bg-strong);max-height:0;overflow:hidden;opacity:0;pointer-events:none;transition:max-height .4s var(--ease),opacity .3s var(--ease)}
+  .nav-menu.open{max-height:420px;opacity:1;pointer-events:auto}
+  .nav-link{padding:.8rem 1rem;border-radius:var(--radius)}
+}
+@media (max-width:760px){
+  .section{padding:3.6rem 1rem}
+  .hero{padding:calc(var(--nav-h) + 1.5rem) 1rem 2.5rem}
+  .hero-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .features{grid-template-columns:1fr}
+  .about-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .reg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .practicals-grid{grid-template-columns:1fr}
+  .resource-card-wide{grid-column:auto}
+  .practical-controls{flex-direction:column;align-items:stretch}
+  .filter-chips,.sim-controls{justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  body::before{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#home" class="nav-logo">
+      <span class="logo-chip">8085</span>
+      <span class="logo-text">Virtual Microprocessor Lab</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+    <nav class="nav-menu" id="navMenu">
+      <a href="#home" class="nav-link active">Home</a>
+      <a href="#about" class="nav-link">About</a>
+      <a href="#practicals" class="nav-link">Practicals</a>
+      <a href="#simulator" class="nav-link">Simulator</a>
+      <a href="#quiz" class="nav-link">Quiz</a>
+      <a href="#resources" class="nav-link">Resources</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <span class="theme-icon sun">☀</span>
+      <span class="theme-icon moon">🌙</span>
+    </button>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="home" class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <p class="hero-eyebrow">BSc IT • Microprocessor Project</p>
+      <h1 class="hero-title">GNUSim8085 <span class="grad">Virtual Microprocessor Lab</span></h1>
+      <p class="hero-subtitle">Learn, assemble and execute real 8085 assembly programs directly in your browser. Complete educational lab with 14 practicals, a working emulator, quiz and reference material — no installation required.</p>
+      <div class="hero-buttons">
+        <a href="#practicals" class="btn btn-primary">Explore Practicals</a>
+        <a href="#simulator" class="btn btn-accent">Open Simulator</a>
+        <a href="#quiz" class="btn btn-ghost">Take Quiz</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num" data-count="14">0</span><span class="stat-label">Practicals</span></div>
+        <div class="stat"><span class="stat-num" data-count="40">0</span><span class="stat-label">Instructions</span></div>
+        <div class="stat"><span class="stat-num" data-count="15">0</span><span class="stat-label">Quiz Questions</span></div>
+        <div class="stat"><span class="stat-num" data-count="100">0</span><span class="stat-label">% Browser Based</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="chip-scene">
+        <svg class="chip-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" aria-label="Animated 8085 microprocessor">
+          <defs>
+            <linearGradient id="chipGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="50%" stop-color="#7c4dff"/><stop offset="100%" stop-color="#00e5ff"/></linearGradient>
+            <linearGradient id="pkgGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0f1b3d"/><stop offset="100%" stop-color="#07102a"/></linearGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <rect x="55" y="55" width="210" height="210" rx="14" fill="url(#pkgGrad)" stroke="url(#chipGrad)" stroke-width="2.5"/>
+          <g stroke="url(#chipGrad)" stroke-width="3" stroke-linecap="round" filter="url(#glow)">
+            <line x1="40" y1="80" x2="55" y2="80"/><line x1="40" y1="110" x2="55" y2="110"/><line x1="40" y1="140" x2="55" y2="140"/><line x1="40" y1="170" x2="55" y2="170"/><line x1="40" y1="200" x2="55" y2="200"/><line x1="40" y1="230" x2="55" y2="230"/>
+            <line x1="265" y1="80" x2="280" y2="80"/><line x1="265" y1="110" x2="280" y2="110"/><line x1="265" y1="140" x2="280" y2="140"/><line x1="265" y1="170" x2="280" y2="170"/><line x1="265" y1="200" x2="280" y2="200"/><line x1="265" y1="230" x2="280" y2="230"/>
+            <line x1="80" y1="40" x2="80" y2="55"/><line x1="110" y1="40" x2="110" y2="55"/><line x1="140" y1="40" x2="140" y2="55"/><line x1="170" y1="40" x2="170" y2="55"/><line x1="200" y1="40" x2="200" y2="55"/><line x1="230" y1="40" x2="230" y2="55"/>
+            <line x1="80" y1="265" x2="80" y2="280"/><line x1="110" y1="265" x2="110" y2="280"/><line x1="140" y1="265" x2="140" y2="280"/><line x1="170" y1="265" x2="170" y2="280"/><line x1="200" y1="265" x2="200" y2="280"/><line x1="230" y1="265" x2="230" y2="280"/>
+          </g>
+          <rect x="95" y="95" width="130" height="130" rx="6" fill="#0a1530" stroke="#00e5ff" stroke-width="1.5" opacity="0.7"/>
+          <g stroke="#00e5ff" stroke-width="1.2" fill="none" opacity="0.55">
+            <path d="M110 110 H210"/><path d="M110 130 H170 V150 H210"/><path d="M110 170 H150 V190 H210"/><path d="M110 210 H210"/><path d="M140 110 V210"/><path d="M180 110 V210"/>
+          </g>
+          <circle r="3.2" fill="#00e5ff"><animateMotion dur="3.5s" repeatCount="indefinite" path="M110 110 H210 V210 H110 Z"/></circle>
+          <circle r="3.2" fill="#7c4dff"><animateMotion dur="4.2s" repeatCount="indefinite" path="M140 110 V210 H180 V110 Z"/></circle>
+          <text x="160" y="170" text-anchor="middle" fill="#e6f7ff" font-size="22" font-weight="700" font-family="Consolas, monospace" filter="url(#glow)">8085</text>
+        </svg>
+        <div class="chip-orbit orbit-1"></div>
+        <div class="chip-orbit orbit-2"></div>
+      </div>
+    </div>
+  </div>
+  <div class="features">
+    <div class="feature-card"><div class="feature-icon">⚙️</div><h3>Real Emulator</h3><p>Genuine browser-based 8085 execution engine with registers, flags, memory and stack.</p></div>
+    <div class="feature-card"><div class="feature-icon">📚</div><h3>14 Practicals</h3><p>Complete assembly programs with aims, algorithms, explanations and viva questions.</p></div>
+    <div class="feature-card"><div class="feature-icon">🧠</div><h3>Interactive Quiz</h3><p>Test your understanding with 15 MCQs, instant scoring and detailed explanations.</p></div>
+    <div class="feature-card"><div class="feature-icon">🚀</div><h3>Zero Install</h3><p>Runs entirely in the browser. Deployable free on GitHub Pages in minutes.</p></div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="section">
+  <div class="section-head">
+    <p class="section-eyebrow">About the project</p>
+    <h2 class="section-title">The <span class="grad">8085</span> Microprocessor</h2>
+    <p class="section-desc">The Intel 8085 is an 8-bit microprocessor introduced in 1976. It remains one of the most widely used teaching processors because of its clean architecture and simple instruction set.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-card"><h3>What is the 8085?</h3><p>8-bit NMOS microprocessor. 8-bit data bus, 16-bit address bus (64 KB), 8-bit ALU, six general-purpose 8-bit registers (B,C,D,E,H,L), accumulator (A), flag register, stack pointer and program counter. Runs at 3.07 MHz. Supports memory and I/O addressing.</p></div>
+    <div class="about-card"><h3>What is GNUSim8085?</h3><p>Free, open-source graphical simulator and assembler for the Intel 8085 microprocessor. Widely used in engineering colleges for writing, assembling and step-debugging 8085 assembly programs on a PC.</p></div>
+    <div class="about-card"><h3>About this website</h3><p>An <strong>independent educational browser-based emulator</strong> inspired by GNUSim8085. It is <em>not</em> the GNUSim8085 desktop application. Supports a documented subset of valid 8085 instructions.</p></div>
+    <div class="about-card"><h3>Objectives</h3><ul class="about-list"><li>Working 8085 emulator in the browser.</li><li>14 graded practical programs with documentation.</li><li>Quiz, viva questions and resources.</li><li>Deployable as a free static site.</li></ul></div>
+    <div class="about-card"><h3>Learning Outcomes</h3><ul class="about-list"><li>Write and debug 8085 assembly.</li><li>Understand registers, flags, addressing modes.</li><li>Trace execution step-by-step.</li><li>Prepare for viva and exams.</li></ul></div>
+    <div class="about-card"><h3>Benefits</h3><ul class="about-list"><li>No install, works offline after load.</li><li>Desktop, tablet and mobile.</li><li>Free to use and host.</li><li>Open source and extendable.</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ PRACTICALS ============ -->
+<section id="practicals" class="section">
+  <div class="section-head">
+    <p class="section-eyebrow">Practical library</p>
+    <h2 class="section-title">14 <span class="grad">8085 Assembly</span> Programs</h2>
+    <p class="section-desc">Every practical includes aim, algorithm, complete code, explanation, sample I/O, viva Q&amp;A, Copy Code and Load in Simulator.</p>
+  </div>
+  <div class="practical-controls">
+    <input type="text" id="practicalSearch" class="search-input" placeholder="Search practicals (e.g. addition, factorial, XOR)…" />
+    <div class="filter-chips" id="filterChips">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="arithmetic">Arithmetic</button>
+      <button class="chip" data-filter="logic">Logic</button>
+      <button class="chip" data-filter="memory">Memory</button>
+      <button class="chip" data-filter="compare">Compare</button>
+      <button class="chip" data-filter="loop">Loops</button>
+    </div>
+  </div>
+  <div class="practicals-grid" id="practicalsGrid"></div>
+  <p class="no-results" id="noResults" hidden>No practicals match your search.</p>
+</section>
+
+<!-- ============ SIMULATOR ============ -->
+<section id="simulator" class="section">
+  <div class="section-head">
+    <p class="section-eyebrow">Live emulator</p>
+    <h2 class="section-title">Browser-Based <span class="grad">8085 Simulator</span></h2>
+    <p class="section-desc">Assemble, step through and run real 8085 code. Independent educational emulator — not the GNUSim8085 desktop application.</p>
+  </div>
+  <div class="sim-layout">
+    <div class="sim-panel">
+      <div class="panel-head"><h3>Assembly Source Editor</h3><span class="panel-tag" id="simStatusTag">Idle</span></div>
+      <textarea id="asmEditor" class="asm-editor" spellcheck="false" placeholder="; Write your 8085 assembly here&#10;MVI A, 05H&#10;MVI B, 03H&#10;ADD B&#10;STA 2050H&#10;HLT"></textarea>
+      <div class="sim-controls">
+        <button class="btn btn-primary" id="btnAssemble">Assemble</button>
+        <button class="btn btn-accent" id="btnRun">▶ Run</button>
+        <button class="btn btn-ghost" id="btnStep">⏭ Step</button>
+        <button class="btn btn-ghost" id="btnReset">⟲ Reset</button>
+        <button class="btn btn-ghost" id="btnLoadExample">Load Example</button>
+      </div>
+      <div class="sim-status" id="simStatus">Ready. Write or load a program, then press <strong>Assemble</strong>.</div>
+      <div class="sim-output" id="simOutput" hidden><strong>Result:</strong> <span id="simOutputText"></span></div>
+    </div>
+    <div class="sim-panel">
+      <div class="panel-head"><h3>Registers &amp; Flags</h3></div>
+      <div class="reg-grid">
+        <div class="reg"><span class="reg-name">A</span><span class="reg-val" id="regA">00</span></div>
+        <div class="reg"><span class="reg-name">B</span><span class="reg-val" id="regB">00</span></div>
+        <div class="reg"><span class="reg-name">C</span><span class="reg-val" id="regC">00</span></div>
+        <div class="reg"><span class="reg-name">D</span><span class="reg-val" id="regD">00</span></div>
+        <div class="reg"><span class="reg-name">E</span><span class="reg-val" id="regE">00</span></div>
+        <div class="reg"><span class="reg-name">H</span><span class="reg-val" id="regH">00</span></div>
+        <div class="reg"><span class="reg-name">L</span><span class="reg-val" id="regL">00</span></div>
+      </div>
+      <div class="special-regs">
+        <div class="special"><span>PC</span><span id="regPC">0000</span></div>
+        <div class="special"><span>SP</span><span id="regSP">FFFF</span></div>
+      </div>
+      <div class="flags-grid">
+        <div class="flag" id="flagS"><span class="flag-name">S</span><span class="flag-val">0</span></div>
+        <div class="flag" id="flagZ"><span class="flag-name">Z</span><span class="flag-val">0</span></div>
+        <div class="flag" id="flagAC"><span class="flag-name">AC</span><span class="flag-val">0</span></div>
+        <div class="flag" id="flagP"><span class="flag-name">P</span><span class="flag-val">0</span></div>
+        <div class="flag" id="flagCY"><span class="flag-name">CY</span><span class="flag-val">0</span></div>
+      </div>
+      <div class="panel-head panel-head-sub"><h3>Memory Viewer <small>(hex)</small></h3></div>
+      <div class="mem-viewer" id="memViewer"></div>
+      <div class="panel-head panel-head-sub"><h3>Disassembly / Current Instruction</h3></div>
+      <div class="disasm" id="disasm"><em>No program assembled.</em></div>
+    </div>
+  </div>
+  <div class="sim-note"><strong>Supported:</strong> MVI, MOV, LXI, LDA, STA, LHLD, SHLD, ADD, ADI, SUB, SUI, INR, DCR, INX, DCX, ANA, ORA, XRA, CMP, CPI, JMP, JZ, JNZ, JC, JNC, CALL, RET, PUSH, POP, CMA, HLT, NOP. Safety limit prevents infinite loops from freezing the browser.</div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz" class="section">
+  <div class="section-head">
+    <p class="section-eyebrow">Assessment</p>
+    <h2 class="section-title">8085 <span class="grad">Quiz</span></h2>
+    <p class="section-desc">15 multiple-choice questions with instant scoring and explanations.</p>
+  </div>
+  <div class="quiz-wrap">
+    <div class="quiz-progress">
+      <div class="quiz-progress-bar"><div id="quizProgressFill"></div></div>
+      <span id="quizProgressText">Question 1 of 15</span>
+    </div>
+    <div class="quiz-card" id="quizCard">
+      <h3 class="quiz-q" id="quizQuestion">Loading…</h3>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback" hidden></div>
+      <div class="quiz-actions"><button class="btn btn-primary" id="quizNext" disabled>Next</button></div>
+    </div>
+    <div class="quiz-result" id="quizResult" hidden>
+      <h3>Quiz Complete!</h3>
+      <p class="quiz-score" id="quizScoreText"></p>
+      <p class="quiz-percent" id="quizPercentText"></p>
+      <button class="btn btn-accent" id="quizRestart">Restart Quiz</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESOURCES ============ -->
+<section id="resources" class="section">
+  <div class="section-head">
+    <p class="section-eyebrow">Learning resources</p>
+    <h2 class="section-title">Reference <span class="grad">Material</span></h2>
+    <p class="section-desc">Everything you need for the lab, viva and exams.</p>
+  </div>
+  <div class="resources-grid">
+    <article class="resource-card"><h3>8085 Architecture</h3><ul><li>8-bit data bus, 16-bit address bus (64 KB).</li><li>ALU, Accumulator, 6 general registers.</li><li>Flags: S, Z, AC, P, CY.</li><li>PC and SP registers.</li><li>Control unit with IR and decoder.</li><li>Interrupts: TRAP, RST 7.5/6.5/5.5, INTR.</li></ul></article>
+    <article class="resource-card"><h3>Registers &amp; Pairs</h3><ul><li>8-bit: A, B, C, D, E, H, L.</li><li>Pairs: BC, DE, HL (HL = memory pointer).</li><li>SP: 16-bit stack pointer.</li><li>PC: 16-bit program counter.</li><li>Flags: S, Z, AC, P, CY.</li></ul></article>
+    <article class="resource-card"><h3>Instruction Categories</h3><ul><li>Data transfer: MOV, MVI, LXI, LDA, STA, LHLD, SHLD.</li><li>Arithmetic: ADD, ADI, SUB, SUI, INR, DCR, INX, DCX.</li><li>Logical: ANA, ORA, XRA, CMA, CMP, CPI.</li><li>Branch: JMP, JZ, JNZ, JC, JNC, CALL, RET.</li><li>Stack: PUSH, POP.</li><li>Control: NOP, HLT.</li></ul></article>
+    <article class="resource-card"><h3>Addressing Modes</h3><ul><li><strong>Immediate:</strong> MVI A, 05H</li><li><strong>Register:</strong> MOV A, B</li><li><strong>Direct:</strong> LDA 2050H</li><li><strong>Register indirect:</strong> MOV A, M</li><li><strong>Implied:</strong> CMA, HLT</li></ul></article>
+    <article class="resource-card"><h3>Flags</h3><ul><li><strong>S</strong> — Sign (MSB of result).</li><li><strong>Z</strong> — Zero (1 if result 0).</li><li><strong>AC</strong> — Auxiliary Carry (bit 3→4).</li><li><strong>P</strong> — Parity (1 if even # of 1s).</li><li><strong>CY</strong> — Carry/borrow out of MSB.</li></ul></article>
+    <article class="resource-card"><h3>Memory &amp; I/O</h3><ul><li>64 KB (0000H–FFFFH).</li><li>Memory-mapped and I/O-mapped.</li><li>IN / OUT ports — 256 ports.</li><li>Stack grows downward from SP.</li><li>PUSH/POP use SP automatically.</li></ul></article>
+    <article class="resource-card resource-card-wide">
+      <h3>Viva Questions &amp; Answers</h3>
+      <ol class="viva-list">
+        <li><strong>Q:</strong> Size of 8085 data bus? <br><strong>A:</strong> 8 bits.</li>
+        <li><strong>Q:</strong> How much memory can 8085 address? <br><strong>A:</strong> 64 KB.</li>
+        <li><strong>Q:</strong> Which register is the accumulator? <br><strong>A:</strong> Register A.</li>
+        <li><strong>Q:</strong> What does Z flag indicate? <br><strong>A:</strong> Result is zero.</li>
+        <li><strong>Q:</strong> Role of HL pair? <br><strong>A:</strong> Memory pointer (M = [HL]).</li>
+        <li><strong>Q:</strong> MOV vs MVI? <br><strong>A:</strong> MOV is register-to-register; MVI is immediate.</li>
+        <li><strong>Q:</strong> What is SP? <br><strong>A:</strong> 16-bit stack pointer.</li>
+        <li><strong>Q:</strong> JMP vs CALL? <br><strong>A:</strong> CALL pushes return address; JMP doesn't.</li>
+        <li><strong>Q:</strong> What flags does CMP affect? <br><strong>A:</strong> All flags, as if subtraction.</li>
+        <li><strong>Q:</strong> What does HLT do? <br><strong>A:</strong> Halts the processor.</li>
+        <li><strong>Q:</strong> Purpose of AC flag? <br><strong>A:</strong> BCD arithmetic (bit 3→4 carry).</li>
+        <li><strong>Q:</strong> INR vs INX? <br><strong>A:</strong> INR = 8-bit; INX = 16-bit pair.</li>
+      </ol>
+    </article>
+    <article class="resource-card resource-card-wide">
+      <h3>GNUSim8085: Installation &amp; Usage</h3>
+      <ol class="viva-list">
+        <li>Download GNUSim8085 from SourceForge or your Linux distro's package manager.</li>
+        <li>Ubuntu/Debian: <code>sudo apt install gnusim8085</code>.</li>
+        <li>Windows: download the installer and follow the wizard.</li>
+        <li>Launch GNUSim8085. The editor opens with a sample program.</li>
+        <li>Type your assembly. Use <code>; comments</code> freely.</li>
+        <li>Press <strong>Assemble</strong> (F9).</li>
+        <li>Press <strong>Step</strong> (F7) to execute one instruction.</li>
+        <li>Watch registers, flags and memory update live.</li>
+        <li>Press <strong>Run</strong> (F5) to execute until HLT.</li>
+        <li>Press <strong>Reset</strong> to clear state.</li>
+        <li>GNUSim8085 supports the full 8085 set; this site supports a documented subset.</li>
+      </ol>
+    </article>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div><h4>GNUSim8085 Virtual Microprocessor Lab</h4><p>Independent educational project for BSc IT. Not affiliated with the GNUSim8085 desktop application.</p></div>
+    <div><h4>Quick Links</h4><a href="#home">Home</a><a href="#about">About</a><a href="#practicals">Practicals</a><a href="#simulator">Simulator</a><a href="#quiz">Quiz</a><a href="#resources">Resources</a></div>
+    <div><h4>Technology</h4><p>HTML5 • CSS3 • Vanilla JavaScript</p><p>No backend • No build step • GitHub Pages ready</p></div>
+  </div>
+  <div class="footer-bottom"><p>© <span id="year"></span> GNUSim8085 Virtual Microprocessor Lab — Educational Project.</p></div>
+</footer>
+
+<script>
+/* =================================================================
+   8085 EMULATOR ENGINE
+   ================================================================= */
+(function(){
+  const REG8 = ['A','B','C','D','E','H','L'];
+  const REG16 = ['BC','DE','HL'];
+  const MAX_STEPS = 100000;
+
+  const REG_OPCODES = {
+    'B':0x00,'C':0x01,'D':0x02,'E':0x03,'H':0x04,'L':0x05,'M':0x06,'A':0x07
+  };
+  const RP_OPCODES = { 'BC':0x00,'DE':0x01,'HL':0x02,'SP':0x03 };
+
+  class CPU8085 {
+    constructor(){
+      this.reset();
+    }
+    reset(){
+      this.regs = {A:0,B:0,C:0,D:0,E:0,H:0,L:0};
+      this.pc = 0x0000;
+      this.sp = 0xFFFF;
+      this.flags = {S:0,Z:0,AC:0,P:0,CY:0};
+      this.memory = new Uint8Array(65536);
+      this.halted = false;
+      this.error = null;
+    }
+    // --- flag helpers ---
+    setFlagsFromByte(value, carry=false, auxCarry=false){
+      this.flags.S = (value & 0x80) ? 1 : 0;
+      this.flags.Z = (value === 0) ? 1 : 0;
+      let p = 0, v = value & 0xFF;
+      while(v){ p ^= (v & 1); v >>= 1; }
+      this.flags.P = (p === 0) ? 1 : 0; // even parity
+      this.flags.CY = carry ? 1 : 0;
+      this.flags.AC = auxCarry ? 1 : 0;
+    }
+    getReg8(r){
+      if(r === 'M'){ return this.memory[this.getHL()]; }
+      return this.regs[r] & 0xFF;
+    }
+    setReg8(r, v){
+      v &= 0xFF;
+      if(r === 'M'){ this.memory[this.getHL()] = v; }
+      else { this.regs[r] = v; }
+    }
+    getRP(name){
+      switch(name){
+        case 'BC': return ((this.regs.B << 8) | this.regs.C) & 0xFFFF;
+        case 'DE': return ((this.regs.D << 8) | this.regs.E) & 0xFFFF;
+        case 'HL': return ((this.regs.H << 8) | this.regs.L) & 0xFFFF;
+        case 'SP': return this.sp & 0xFFFF;
+      }
+      return 0;
+    }
+    setRP(name, v){
+      v &= 0xFFFF;
+      switch(name){
+        case 'BC': this.regs.B = (v >> 8) & 0xFF; this.regs.C = v & 0xFF; break;
+        case 'DE': this.regs.D = (v >> 8) & 0xFF; this.regs.E = v & 0xFF; break;
+        case 'HL': this.regs.H = (v >> 8) & 0xFF; this.regs.L = v & 0xFF; break;
+        case 'SP': this.sp = v; break;
+      }
+    }
+    getHL(){ return ((this.regs.H << 8) | this.regs.L) & 0xFFFF; }
+    push(v){
+      this.sp = (this.sp - 1) & 0xFFFF;
+      this.memory[this.sp] = (v >> 8) & 0xFF;
+      this.sp = (this.sp - 1) & 0xFFFF;
+      this.memory[this.sp] = v & 0xFF;
+    }
+    pop(){
+      const lo = this.memory[this.sp];
+      this.sp = (this.sp + 1) & 0xFFFF;
+      const hi = this.memory[this.sp];
+      this.sp = (this.sp + 1) & 0xFFFF;
+      return ((hi << 8) | lo) & 0xFFFF;
+    }
+    // ---- arithmetic ----
+    addByte(a, b, withCarry=false){
+      const cin = withCarry ? this.flags.CY : 0;
+      const sum = a + b + cin;
+      const res = sum & 0xFF;
+      const carry = sum > 0xFF;
+      const aux = ((a & 0x0F) + (b & 0x0F) + cin) > 0x0F;
+      this.setFlagsFromByte(res, carry, aux);
+      this.regs.A = res;
+    }
+    subByte(a, b, withBorrow=false, storeResult=true){
+      const bin = withBorrow ? this.flags.CY : 0;
+      const diff = a - b - bin;
+      const res = diff & 0xFF;
+      const borrow = diff < 0;
+      const aux = ((a & 0x0F) - (b & 0x0F) - bin) < 0;
+      this.setFlagsFromByte(res, borrow, aux);
+      if(storeResult) this.regs.A = res;
+    }
+    inc8(v){
+      const res = (v + 1) & 0xFF;
+      const aux = ((v & 0x0F) + 1) > 0x0F;
+      // INR does not affect CY
+      const cy = this.flags.CY;
+      this.setFlagsFromByte(res, false, aux);
+      this.flags.CY = cy;
+      return res;
+    }
+    dec8(v){
+      const res = (v - 1) & 0xFF;
+      const aux = ((v & 0x0F) - 1) < 0;
+      const cy = this.flags.CY;
+      this.setFlagsFromByte(res, false, aux);
+      this.flags.CY = cy;
+      return res;
+    }
+    // ---- execution ----
+    step(program){
+      if(this.halted) return {done:true};
+      if(this.pc >= program.length){
+        return {done:true, reason:'End of program'};
+      }
+      const ins = program[this.pc];
+      const nextPC = this.pc + 1;
+      let newPC = nextPC;
+      const m = ins.mnemonic;
+      const ops = ins.operands;
+
+      try{
+        switch(m){
+          case 'NOP': break;
+          case 'HLT': this.halted = true; break;
+          case 'MVI': {
+            const dst = ops[0].toUpperCase();
+            const val = ops[1].value & 0xFF;
+            this.setReg8(dst, val);
+            break;
+          }
+          case 'MOV': {
+            const dst = ops[0].toUpperCase();
+            const src = ops[1].toUpperCase();
+            this.setReg8(dst, this.getReg8(src));
+            break;
+          }
+          case 'LXI': {
+            const rp = ops[0].toUpperCase();
+            const val = ops[1].value & 0xFFFF;
+            this.setRP(rp, val);
+            break;
+          }
+          case 'LDA': {
+            const addr = ops[0].value & 0xFFFF;
+            this.regs.A = this.memory[addr];
+            break;
+          }
+          case 'STA': {
+            const addr = ops[0].value & 0xFFFF;
+            this.memory[addr] = this.regs.A;
+            break;
+          }
+          case 'LHLD': {
+            const addr = ops[0].value & 0xFFFF;
+            this.regs.L = this.memory[addr];
+            this.regs.H = this.memory[(addr+1)&0xFFFF];
+            break;
+          }
+          case 'SHLD': {
+            const addr = ops[0].value & 0xFFFF;
+            this.memory[addr] = this.regs.L;
+            this.memory[(addr+1)&0xFFFF] = this.regs.H;
+            break;
+          }
+          case 'ADD': this.addByte(this.regs.A, this.getReg8(ops[0].toUpperCase())); break;
+          case 'ADI': this.addByte(this.regs.A, ops[0].value & 0xFF); break;
+          case 'SUB': this.subByte(this.regs.A, this.getReg8(ops[0].toUpperCase())); break;
+          case 'SUI': this.subByte(this.regs.A, ops[0].value & 0xFF); break;
+          case 'INR': {
+            const r = ops[0].toUpperCase();
+            this.setReg8(r, this.inc8(this.getReg8(r)));
+            break;
+          }
+          case 'DCR': {
+            const r = ops[0].toUpperCase();
+            this.setReg8(r, this.dec8(this.getReg8(r)));
+            break;
+          }
+          case 'INX': this.setRP(ops[0].toUpperCase(), (this.getRP(ops[0].toUpperCase()) + 1) & 0xFFFF); break;
+          case 'DCX': this.setRP(ops[0].toUpperCase(), (this.getRP(ops[0].toUpperCase()) - 1) & 0xFFFF); break;
+          case 'ANA': {
+            const v = this.getReg8(ops[0].toUpperCase());
+            const res = this.regs.A & v;
+            this.flags.AC = 1; // 8085 sets AC after ANA
+            this.setFlagsFromByte(res, false, true);
+            this.regs.A = res;
+            break;
+          }
+          case 'ORA': {
+            const v = this.getReg8(ops[0].toUpperCase());
+            const res = this.regs.A | v;
+            this.setFlagsFromByte(res, false, false);
+            this.regs.A = res;
+            break;
+          }
+          case 'XRA': {
+            const v = this.getReg8(ops[0].toUpperCase());
+            const res = this.regs.A ^ v;
+            this.setFlagsFromByte(res, false, false);
+            this.regs.A = res;
+            break;
+          }
+          case 'CMP': this.subByte(this.regs.A, this.getReg8(ops[0].toUpperCase()), false, false); break;
+          case 'CPI': this.subByte(this.regs.A, ops[0].value & 0xFF, false, false); break;
+          case 'CMA': this.regs.A = (~this.regs.A) & 0xFF; break;
+          case 'JMP': newPC = ops[0].value & 0xFFFF; break;
+          case 'JZ': if(this.flags.Z) newPC = ops[0].value & 0xFFFF; break;
+          case 'JNZ': if(!this.flags.Z) newPC = ops[0].value & 0xFFFF; break;
+          case 'JC': if(this.flags.CY) newPC = ops[0].value & 0xFFFF; break;
+          case 'JNC': if(!this.flags.CY) newPC = ops[0].value & 0xFFFF; break;
+          case 'CALL': {
+            const addr = ops[0].value & 0xFFFF;
+            this.push(nextPC);
+            newPC = addr;
+            break;
+          }
+          case 'RET': newPC = this.pop(); break;
+          case 'PUSH': {
+            const rp = ops[0].toUpperCase();
+            this.push(this.getRP(rp));
+            break;
+          }
+          case 'POP': {
+            const rp = ops[0].toUpperCase();
+            this.setRP(rp, this.pop());
+            break;
+          }
+          default:
+            throw new Error('Unsupported instruction: ' + m);
+        }
+      }catch(err){
+        this.error = err.message;
+        return {done:true, error:err.message};
+      }
+
+      this.pc = newPC;
+      return {done:this.halted, pc:this.pc, ins};
+    }
+  }
+
+  /* ============ ASSEMBLER ============ */
+  // Returns {program: [...], errors: [...], labels: {}, listing: [...]}
+  function assemble(source){
+    const lines = source.split(/\r?\n/);
+    const labels = {};
+    const instructions = [];
+    const errors = [];
+    let curAddr = 0x0000;
+
+    // ---- PASS 1: labels + lengths ----
+    for(let i=0; i<lines.length; i++){
+      let raw = lines[i];
+      const lineNo = i+1;
+      let line = raw.replace(/;.*$/, '').trim();
+      if(!line) continue;
+
+      // label?
+      const lblMatch = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$/);
+      if(lblMatch){
+        const name = lblMatch[1].toUpperCase();
+        if(labels.hasOwnProperty(name)){
+          errors.push({line:lineNo, msg:'Duplicate label: ' + name});
+        }
+        labels[name] = curAddr;
+        line = lblMatch[2].trim();
+        if(!line) continue;
+      }
+
+      const parsed = parseInstruction(line, lineNo, errors);
+      if(parsed){
+        parsed.line = lineNo;
+        parsed.addr = curAddr;
+        instructions.push(parsed);
+        curAddr += parsed.size;
+      }
+    }
+
+    // ---- PASS 2: resolve label operands ----
+    const program = instructions.map(ins=>{
+      const ops = ins.operands.map(op=>{
+        if(op.type === 'label'){
+          const key = op.value.toUpperCase();
+          if(!(key in labels)){
+            errors.push({line:ins.line, msg:'Unknown label: ' + op.value});
+            return {type:'imm', value:0};
+          }
+          return {type:'imm', value:labels[key], size:2};
+        }
+        return op;
+      });
+      return {mnemonic:ins.mnemonic, operands:ops, addr:ins.addr, raw:ins.raw, size:ins.size, line:ins.line};
+    });
+
+    return {program, errors, labels};
+  }
+
+  function parseInstruction(line, lineNo, errors){
+    // Normalize comma spacing
+    const parts = line.split(/\s+/);
+    if(parts.length === 0) return null;
+    const mnemonic = parts[0].toUpperCase();
+    let rest = line.substring(parts[0].length).trim();
+    if(rest.endsWith(',')) rest = rest.slice(0, -1).trim();
+    const operands = rest ? rest.split(/\s*,\s*/).map(s=>s.trim()).filter(Boolean) : [];
+
+    // Validate mnemonic & operand count
+    const SPEC = {
+      'NOP':0,'HLT':0,'CMA':0,'RET':0,
+      'MOV':2,'MVI':2,'LXI':2,'LDA':1,'STA':1,'LHLD':1,'SHLD':1,
+      'ADD':1,'ADI':1,'SUB':1,'SUI':1,'INR':1,'DCR':1,'INX':1,'DCX':1,
+      'ANA':1,'ORA':1,'XRA':1,'CMP':1,'CPI':1,
+      'JMP':1,'JZ':1,'JNZ':1,'JC':1,'JNC':1,'CALL':1,
+      'PUSH':1,'POP':1
+    };
+
+    if(!(mnemonic in SPEC)){
+      errors.push({line:lineNo, msg:'Unknown mnemonic: ' + mnemonic});
+      return null;
+    }
+    if(operands.length !== SPEC[mnemonic]){
+      errors.push({line:lineNo, msg:mnemonic + ' expects ' + SPEC[mnemonic] + ' operand(s), got ' + operands.length});
+      return null;
+    }
+
+    // size (bytes)
+    let size = 1;
+    const opObjs = [];
+
+    const isHex = s => /^(0x[0-9A-Fa-f]+|[0-9A-Fa-f]+H?)$/.test(s);
+    const isNum = s => /^[0-9]+$/.test(s);
+    const isLabel = s => /^[A-Za-z_][A-Za-z0-9_]*$/.test(s);
+
+    function parseImm(s){
+      s = s.trim();
+      if(/^0x[0-9A-Fa-f]+$/.test(s)) return {v: parseInt(s,16), w: (parseInt(s,16) > 0xFF ? 2 : 1)};
+      if(/^[0-9A-Fa-f]+H$/.test(s)) return {v: parseInt(s.slice(0,-1),16), w: (parseInt(s.slice(0,-1),16) > 0xFF ? 2 : 1)};
+      if(isNum(s)){ const v = parseInt(s,10); return {v, w: v > 0xFF ? 2 : 1}; }
+      return null;
+    }
+
+    switch(mnemonic){
+      case 'MOV': {
+        const dst = operands[0].toUpperCase(), src = operands[1].toUpperCase();
+        const valid = ['A','B','C','D','E','H','L','M'];
+        if(!valid.includes(dst)) errors.push({line:lineNo, msg:'MOV invalid destination: '+dst});
+        if(!valid.includes(src)) errors.push({line:lineNo, msg:'MOV invalid source: '+src});
+        if(dst === 'M' && src === 'M') errors.push({line:lineNo, msg:'MOV M,M is not a valid instruction'});
+        size = 1;
+        break;
+      }
+      case 'MVI': {
+        const dst = operands[0].toUpperCase();
+        if(!['A','B','C','D','E','H','L','M'].includes(dst)) errors.push({line:lineNo, msg:'MVI invalid destination: '+dst});
+        const imm = parseImm(operands[1]);
+        if(imm === null){ errors.push({line:lineNo, msg:'MVI immediate must be a number (e.g. 05H)'}); }
+        else { opObjs.push({type:'imm', value: imm.v}); size = 2; }
+        break;
+      }
+      case 'LXI': {
+        const rp = operands[0].toUpperCase();
+        if(!['BC','DE','HL','SP'].includes(rp)) errors.push({line:lineNo, msg:'LXI invalid register pair: '+rp});
+        const imm = parseImm(operands[1]);
+        if(imm === null){ errors.push({line:lineNo, msg:'LXI immediate must be a number'}); }
+        else { opObjs.push({type:'imm', value: imm.v}); size = 3; }
+        break;
+      }
+      case 'LDA': case 'STA': case 'LHLD': case 'SHLD': {
+        const imm = parseImm(operands[0]);
+        if(imm === null){ errors.push({line:lineNo, msg:mnemonic+' address must be a number'}); }
+        else { opObjs.push({type:'imm', value: imm.v}); size = 3; }
+        break;
+      }
+      case 'ADD': case 'SUB': case 'ANA': case 'ORA': case 'XRA': case 'CMP': {
+        const r = operands[0].toUpperCase();
+        if(!['A','B','C','D','E','H','L','M'].includes(r)) errors.push({line:lineNo, msg:mnemonic+' invalid register: '+r});
+        size = 1;
+        break;
+      }
+      case 'ADI': case 'SUI': case 'CPI': {
+        const imm = parseImm(operands[0]);
+        if(imm === null){ errors.push({line:lineNo, msg:mnemonic+' immediate must be a number'}); }
+        else { opObjs.push({type:'imm', value: imm.v}); size = 2; }
+        break;
+      }
+      case 'INR': case 'DCR': {
+        const r = operands[0].toUpperCase();
+        if(!['A','B','C','D','E','H','L','M'].includes(r)) errors.push({line:lineNo, msg:mnemonic+' invalid register: '+r});
+        size = 1;
+        break;
+      }
+      case 'INX': case 'DCX': case 'PUSH': case 'POP': {
+        const rp = operands[0].toUpperCase();
+        if(!['BC','DE','HL','SP'].includes(rp)) errors.push({line:lineNo, msg:mnemonic+' invalid register pair: '+rp});
+        if(mnemonic === 'PUSH' && rp === 'SP') errors.push({line:lineNo, msg:'PUSH SP is not valid'});
+        if(mnemonic === 'POP' && rp === 'SP') errors.push({line:lineNo, msg:'POP SP is not valid'});
+        size = 1;
+        break;
+      }
+      case 'JMP': case 'JZ': case 'JNZ': case 'JC': case 'JNC': case 'CALL': {
+        const t = operands[0].trim();
+        const imm = parseImm(t);
+        if(imm !== null){
+          opObjs.push({type:'imm', value: imm.v});
+          size = 3;
+        } else if(isLabel(t)){
+          opObjs.push({type:'label', value: t});
+          size = 3;
+        } else {
+          errors.push({line:lineNo, msg:mnemonic+' target must be a number or label'});
+        }
+        break;
+      }
+      default: size = 1;
+    }
+
+    // Build final operand objects: for MOV/ADD/etc, we need register names too
+    const finalOps = [];
+    if(mnemonic === 'MOV'){
+      finalOps.push({type:'reg', value: operands[0].toUpperCase()});
+      finalOps.push({type:'reg', value: operands[1].toUpperCase()});
+    } else if(['ADD','SUB','ANA','ORA','XRA','CMP'].includes(mnemonic)){
+      finalOps.push({type:'reg', value: operands[0].toUpperCase()});
+    } else if(['INR','DCR'].includes(mnemonic)){
+      finalOps.push({type:'reg', value: operands[0].toUpperCase()});
+    } else if(['MVI'].includes(mnemonic)){
+      finalOps.push({type:'reg', value: operands[0].toUpperCase()});
+      if(opObjs[0]) finalOps.push(opObjs[0]);
+    } else if(['LXI','INX','DCX','PUSH','POP'].includes(mnemonic)){
+      finalOps.push({type:'rp', value: operands[0].toUpperCase()});
+      if(mnemonic === 'LXI' && opObjs[0]) finalOps.push(opObjs[0]);
+    } else if(['LDA','STA','LHLD','SHLD'].includes(mnemonic)){
+      if(opObjs[0]) finalOps.push(opObjs[0]);
+    } else if(['ADI','SUI','CPI'].includes(mnemonic)){
+      if(opObjs[0]) finalOps.push(opObjs[0]);
+    } else if(['JMP','JZ','JNZ','JC','JNC','CALL'].includes(mnemonic)){
+      if(opObjs[0]) finalOps.push(opObjs[0]);
+    }
+
+    return {mnemonic, operands: finalOps, size, raw: line, line: lineNo};
+  }
+
+  /* ============ UI BINDING ============ */
+  const $ = id => document.getElementById(id);
+
+  const ui = {
+    editor: $('asmEditor'),
+    status: $('simStatus'),
+    statusTag: $('simStatusTag'),
+    output: $('simOutput'),
+    outputText: $('simOutputText'),
+    memViewer: $('memViewer'),
+    disasm: $('disasm')
+  };
+
+  const cpu = new CPU8085();
+  let assembled = null; // {program, errors, labels}
+  let isRunning = false;
+
+  function fmtByte(v){ return v.toString(16).toUpperCase().padStart(2,'0'); }
+  function fmtWord(v){ return v.toString(16).toUpperCase().padStart(4,'0'); }
+
+  function setStatus(msg, cls){
+    ui.status.textContent = msg;
+    ui.status.className = 'sim-status' + (cls ? ' ' + cls : '');
+  }
+  function setTag(text, cls){
+    ui.statusTag.textContent = text;
+    ui.statusTag.className = 'panel-tag' + (cls ? ' ' + cls : '');
+  }
+
+  function updateRegs(prev){
+    ['A','B','C','D','E','H','L'].forEach(r=>{
+      const el = $('reg'+r);
+      const val = cpu.regs[r];
+      el.textContent = fmtByte(val);
+      if(prev && prev.regs[r] !== val){
+        el.parentElement.classList.remove('changed');
+        void el.parentElement.offsetWidth;
+        el.parentElement.classList.add('changed');
+      }
+    });
+    $('regPC').textContent = fmtWord(cpu.pc);
+    $('regSP').textContent = fmtWord(cpu.sp);
+    [['S','flagS'],['Z','flagZ'],['AC','flagAC'],['P','flagP'],['CY','flagCY']].forEach(([k,id])=>{
+      const el = $(id);
+      el.classList.toggle('on', !!cpu.flags[k]);
+      el.querySelector('.flag-val').textContent = cpu.flags[k] ? '1' : '0';
+    });
+  }
+
+  function updateDisasm(){
+    const el = ui.disasm;
+    el.innerHTML = '';
+    if(!assembled){
+      el.innerHTML = '<em>No program assembled.</em>';
+      return;
+    }
+    assembled.program.forEach(ins=>{
+      const row = document.createElement('div');
+      row.className = 'disasm-row';
+      if(ins.addr === cpu.pc) row.classList.add('current');
+      row.innerHTML = '<span class="disasm-addr">'+fmtWord(ins.addr)+'</span><span>'+escapeHtml(ins.raw)+'</span>';
+      el.appendChild(row);
+    });
+  }
+
+  function updateMem(){
+    const el = ui.memViewer;
+    el.innerHTML = '';
+    // Show memory around PC and around 0x2000 region (common data area)
+    const ranges = [];
+    const around = (base, span=64) => {
+      const start = Math.max(0, (base & 0xFFF0) - 16);
+      for(let a = start; a < start + span; a += 8){
+        ranges.push(a);
+      }
+    };
+    around(cpu.pc, 32);
+    ranges.push(0x2000);
+
+    const seen = new Set();
+    ranges.forEach(base=>{
+      for(let k=0; k<8; k++){
+        const addr = base + k*8;
+        if(addr < 0 || addr > 0xFFFF || seen.has(addr)) continue;
+        seen.add(addr);
+        const row = document.createElement('div');
+        row.className = 'mem-row';
+        const addrEl = document.createElement('span');
+        addrEl.className = 'mem-addr';
+        addrEl.textContent = fmtWord(addr);
+        row.appendChild(addrEl);
+        for(let i=0; i<8; i++){
+          const a = addr + i;
+          if(a > 0xFFFF) break;
+          const cell = document.createElement('span');
+          cell.className = 'mem-cell';
+          const v = cpu.memory[a];
+          if(v) cell.classList.add('nz');
+          if(a === cpu.pc) cell.classList.add('pc');
+          cell.textContent = fmtByte(v);
+          row.appendChild(cell);
+        }
+        el.appendChild(row);
+      }
+    });
+  }
+
+  function updateAll(prev){
+    updateRegs(prev);
+    updateDisasm();
+    updateMem();
+  }
+
+  function doAssemble(){
+    const src = ui.editor.value;
+    const res = assemble(src);
+    assembled = res;
+    cpu.reset();
+    if(res.errors.length){
+      setStatus('Assembly error: ' + res.errors[0].msg + ' (line ' + res.errors[0].line + ')', 'error');
+      setTag('Error', 'error');
+      return false;
+    }
+    if(res.program.length === 0){
+      setStatus('No instructions to execute.', 'error');
+      setTag('Error', 'error');
+      return false;
+    }
+    setStatus('Assembled ' + res.program.length + ' instructions. Ready to run/step.', 'ok');
+    setTag('Ready', 'done');
+    ui.output.hidden = true;
+    updateAll();
+    return true;
+  }
+
+  function explainResult(){
+    const prog = assembled ? assembled.program : [];
+    const hasSTA = prog.some(i => i.mnemonic === 'STA');
+    let msg = 'Program halted. ';
+    msg += 'A=' + fmtByte(cpu.regs.A) + ' (' + cpu.regs.A + '), ';
+    msg += 'B=' + fmtByte(cpu.regs.B) + ', C=' + fmtByte(cpu.regs.C) + ', ';
+    msg += 'D=' + fmtByte(cpu.regs.D) + ', E=' + fmtByte(cpu.regs.E) + ', ';
+    msg += 'H=' + fmtByte(cpu.regs.H) + ', L=' + fmtByte(cpu.regs.L) + '. ';
+    if(hasSTA){
+      const lastSTA = [...prog].reverse().find(i=>i.mnemonic==='STA');
+      if(lastSTA){
+        const addr = lastSTA.operands[0].value;
+        msg += 'Memory[' + fmtWord(addr) + ']=' + fmtByte(cpu.memory[addr]) + '.';
+      }
+    }
+    return msg;
+  }
+
+  function doStep(){
+    if(!assembled){
+      if(!doAssemble()) return;
+    }
+    if(cpu.halted){
+      setStatus('CPU is halted. Press Reset to run again.', 'ok');
+      return;
+    }
+    const prev = JSON.parse(JSON.stringify({regs:cpu.regs, flags:cpu.flags, pc:cpu.pc, sp:cpu.sp}));
+    const r = cpu.step(assembled.program);
+    updateAll(prev);
+    if(r.error){
+      setStatus('Runtime error: ' + r.error, 'error');
+      setTag('Error', 'error');
+      return;
+    }
+    if(r.done){
+      setTag('Halted', 'done');
+      setStatus('Program halted at PC=' + fmtWord(cpu.pc) + '.', 'ok');
+      ui.outputText.textContent = explainResult();
+      ui.output.hidden = false;
+    } else {
+      setStatus('Stepped. PC=' + fmtWord(cpu.pc) + '  Next: ' + (assembled.program[cpu.pc]?.raw || '—'), 'ok');
+    }
+  }
+
+  function doRun(){
+    if(!assembled){
+      if(!doAssemble()) return;
+    }
+    if(cpu.halted){
+      setStatus('CPU is halted. Press Reset to run again.', 'ok');
+      return;
+    }
+    setTag('Running', 'running');
+    isRunning = true;
+    let steps = 0;
+    const prev = JSON.parse(JSON.stringify({regs:cpu.regs, flags:cpu.flags, pc:cpu.pc, sp:cpu.sp}));
+    while(steps < MAX_STEPS){
+      const r = cpu.step(assembled.program);
+      steps++;
+      if(r.error){
+        setStatus('Runtime error: ' + r.error, 'error');
+        setTag('Error', 'error');
+        isRunning = false;
+        updateAll(prev);
+        return;
+      }
+      if(r.done) break;
+    }
+    isRunning = false;
+    updateAll(prev);
+    if(steps >= MAX_STEPS){
+      setStatus('Safety limit reached ('+MAX_STEPS+' instructions). Possible infinite loop.', 'error');
+      setTag('Limit', 'error');
+      return;
+    }
+    setTag('Halted', 'done');
+    setStatus('Program halted after ' + steps + ' instruction(s). PC=' + fmtWord(cpu.pc), 'ok');
+    ui.outputText.textContent = explainResult();
+    ui.output.hidden = false;
+  }
+
+  function doReset(){
+    cpu.reset();
+    assembled = null;
+    setStatus('CPU reset. Press Assemble to reload the program.', '');
+    setTag('Idle', '');
+    ui.output.hidden = true;
+    updateAll();
+  }
+
+  const EXAMPLE_PROGRAM = `; Add two 8-bit numbers
+MVI A, 25H
+MVI B, 17H
+ADD B
+STA 2050H
+HLT`;
+
+  $('btnAssemble').addEventListener('click', ()=>{ doAssemble(); });
+  $('btnRun').addEventListener('click', ()=>{ doRun(); });
+  $('btnStep').addEventListener('click', ()=>{ doStep(); });
+  $('btnReset').addEventListener('click', ()=>{ doReset(); });
+  $('btnLoadExample').addEventListener('click', ()=>{
+    ui.editor.value = EXAMPLE_PROGRAM;
+    setStatus('Example loaded. Press Assemble.', '');
+    setTag('Idle', '');
+  });
+
+  // Expose minimal API for script.js
+  window.__SIM__ = {
+    loadCode(code){
+      ui.editor.value = code;
+      doAssemble();
+      document.getElementById('simulator').scrollIntoView({behavior:'smooth'});
+    }
+  };
+
+  // Initial memory view
+  updateMem();
+  setTag('Idle', '');
+})();
+
+/* =================================================================
+   PRACTICALS DATA + UI
+   ================================================================= */
+(function(){
+  const PRACTICALS = [
+    {id:1,cat:'arithmetic',title:'Addition of Two 8-bit Numbers',aim:'Add two 8-bit numbers stored in memory and store the sum.',algo:['Load first number into A','Add second number to A','Store result in memory','Halt'],code:`; Add two 8-bit numbers
+LXI H, 2050H
+MOV A, M
+INX H
+ADD M
+INX H
+MOV M, A
+HLT`,explain:'LXI H,2050H points HL to first operand. MOV A,M loads first number. INX H moves to next. ADD M adds second. INX H and MOV M,A store the sum.',input:'Memory[2050H]=25H, Memory[2051H]=17H',output:'Memory[2052H]=3CH (60)',viva:[['Which register holds the result?','Accumulator A.'],['Which flag is set if sum > FFH?','CY (Carry flag).']]},
+    {id:2,cat:'arithmetic',title:'Subtraction of Two 8-bit Numbers',aim:'Subtract one 8-bit number from another.',algo:['Load minuend into A','Subtract subtrahend','Store result','Halt'],code:`; Subtract two 8-bit numbers
+LXI H, 2050H
+MOV A, M
+INX H
+SUB M
+INX H
+MOV M, A
+HLT`,explain:'MOV A,M loads minuend. SUB M subtracts the second number. Result stored at third address.',input:'Memory[2050H]=50H, Memory[2051H]=20H',output:'Memory[2052H]=30H',viva:[['What does CY indicate after SUB?','Borrow was required.'],['Which flag is set if result is zero?','Z flag.']]},
+    {id:3,cat:'arithmetic',title:'Multiplication by Repeated Addition',aim:'Multiply two 8-bit numbers using repeated addition.',algo:['Load multiplier and multiplicand','Add multiplicand multiplier times','Store product','Halt'],code:`; Multiply by repeated addition
+LXI H, 2050H
+MOV B, M        ; B = multiplier
+INX H
+MOV C, M        ; C = multiplicand
+MVI A, 00H
+LOOP: ADD C
+DCR B
+JNZ LOOP
+STA 2052H
+HLT`,explain:'A is zeroed. Each iteration adds C to A and decrements B. When B=0, product is in A and stored.',input:'Memory[2050H]=04H, Memory[2051H]=05H',output:'Memory[2052H]=14H (20)',viva:[['Why is A cleared first?','To accumulate the product from zero.'],['Which flag controls the loop?','Z flag via JNZ.']]},
+    {id:4,cat:'arithmetic',title:'Division by Repeated Subtraction',aim:'Divide one 8-bit number by another using repeated subtraction.',algo:['Load dividend and divisor','Subtract divisor from dividend','Increment quotient','Repeat until dividend < divisor','Store quotient and remainder','Halt'],code:`; Division by repeated subtraction
+LXI H, 2050H
+MOV A, M        ; A = dividend
+INX H
+MOV B, M        ; B = divisor
+MVI C, 00H      ; quotient = 0
+LOOP: CMP B
+JC DONE
+SUB B
+INR C
+JMP LOOP
+DONE: STA 2052H
+MOV A, C
+STA 2053H
+HLT`,explain:'Compare A with B; if A<B stop. Else subtract B, increment quotient C, repeat. Quotient and remainder are stored.',input:'Memory[2050H]=17H, Memory[2051H]=05H',output:'Quotient=04H, Remainder=03H',viva:[['What does CMP B do?','Compares A with B by subtracting B from A and setting flags.'],['Why JC after CMP?','To detect borrow (A<B).']]},
+    {id:5,cat:'compare',title:'Largest of Two Numbers',aim:'Find the larger of two 8-bit numbers.',algo:['Load first number into A','Compare with second','If A > second, store A, else store second','Halt'],code:`; Largest of two numbers
+LXI H, 2050H
+MOV A, M
+INX H
+MOV B, M
+CMP B
+JNC STORE_A
+MOV A, B
+STORE_A: STA 2052H
+HLT`,explain:'CMP B compares A with B. If no borrow (A>=B), JNC jumps and A is stored. Else B is moved into A and stored.',input:'Memory[2050H]=3AH, Memory[2051H]=27H',output:'Memory[2052H]=3AH',viva:[['Which flag distinguishes larger?','CY after CMP.'],['What if both are equal?','A is stored (JNC taken).']]},
+    {id:6,cat:'compare',title:'Largest of Three Numbers',aim:'Find the largest among three 8-bit numbers.',algo:['Load first into A','Compare with second, keep larger in A','Compare with third, keep larger in A','Store result','Halt'],code:`; Largest of three numbers
+LXI H, 2050H
+MOV A, M        ; A = first
+INX H
+MOV B, M        ; B = second
+CMP B
+JNC CHK_THIRD
+MOV A, B
+CHK_THIRD: INX H
+MOV B, M
+CMP B
+JNC DONE
+MOV A, B
+DONE: STA 2053H
+HLT`,explain:'A holds current maximum. Compare with second, replace if needed. Then compare with third, replace if needed. Store.',input:'Memory[2050H]=10H, [2051H]=45H, [2052H]=22H',output:'Memory[2053H]=45H',viva:[['How many comparisons?','Two.'],['Which flag helps pick larger?','CY after CMP.']]},
+    {id:7,cat:'compare',title:'Smallest of Two Numbers',aim:'Find the smaller of two 8-bit numbers.',algo:['Load first into A','Compare with second','If A < second, store A else store second','Halt'],code:`; Smallest of two numbers
+LXI H, 2050H
+MOV A, M
+INX H
+MOV B, M
+CMP B
+JC STORE_A
+MOV A, B
+STORE_A: STA 2052H
+HLT`,explain:'CMP B; if borrow (A<B) JC stores A. Else B is smaller, copy into A and store.',input:'Memory[2050H]=3AH, [2051H]=27H',output:'Memory[2052H]=27H',viva:[['Which flag indicates A<B?','CY.'],['Why JC instead of JNC?','Because CY=1 means A<B.']]},
+    {id:8,cat:'arithmetic',title:'Increment and Decrement',aim:'Demonstrate INR, DCR, INX, DCX.',algo:['Load a number','Increment it','Decrement it','Increment pair','Decrement pair','Store results'],code:`; Increment and decrement
+MVI A, 0AH
+INR A
+STA 2050H
+DCR A
+STA 2051H
+LXI H, 0FFFH
+INX H
+SHLD 2052H
+DCX H
+SHLD 2054H
+HLT`,explain:'INR/DCR affect 8-bit registers. INX/DCX affect 16-bit pairs. INR/DCR do not affect CY.',input:'A = 0AH, HL = 0FFFH',output:'[2050H]=0BH, [2051H]=0AH, [
